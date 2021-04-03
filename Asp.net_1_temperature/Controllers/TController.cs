@@ -11,60 +11,62 @@ namespace Asp.net_1_temperature.Controllers
     [ApiController]
     public class TController : ControllerBase
     {
-        private readonly Temperature holder;
+        private readonly WeatherForecastStorage holder;
 
-        public TController(Temperature holder)
+        public TController(WeatherForecastStorage _holder)
         {
-            this.holder = holder;
+            holder = _holder;
         }
 
         [HttpPost("create")]
-        public IActionResult Create([FromQuery] int input)
+        public IActionResult Create([FromQuery] int temperature)//Дата назначается автоматически в классе Temperature
         {
-            holder.CreateTemperature(input);
+            holder.CreateTemperature(temperature);
             return Ok();
         }
 
-        [HttpGet("read")]
-        public IActionResult Read()
+        [HttpGet("read/ from /{fromDate}/to/{toDate}")]
+        public IActionResult Read([FromRoute]TimeSpan fromDate, [FromRoute] TimeSpan toDate)
         {
-            string info = "";
-
-            for (int i = 0; i < holder.temperatureObjectValue.Count; i++)
+            foreach (TemperatureObject temperatureO in holder.temperatureObjectValue)
             {
+                DateTime dtFrom = DateTime.Parse(fromDate.ToString());
+                DateTime dtTo = DateTime.Parse(toDate.ToString());
 
-                info += holder.temperatureObjectValue[i].Time + " температура:" + holder.temperatureObjectValue[i].TemperatureC + "\r\n";
-               
+                if (temperatureO.Time > dtFrom && temperatureO.Time < dtTo)
+                {
+                    return Ok(temperatureO);
+                }
+                else
+                {
+                }
+                
             }
-            return Ok(info);
+            return Ok();
+
         }
 
         [HttpPut("update")]
-        public IActionResult Update([FromQuery] string stringsTimeToUpdate, [FromQuery] int newTemp)
+        public IActionResult Update([FromQuery] DateTime stringsTimeToUpdate, [FromQuery] int newTemp)
         {
-            for (int i = 0; i < holder.temperatureObjectValue.Count; i++)
+            foreach(TemperatureObject temperatureO in holder.temperatureObjectValue)
             {
-                if (holder.temperatureObjectValue[i].Time == stringsTimeToUpdate)
-                    holder.temperatureObjectValue[i].TemperatureC = newTemp;
+                if (temperatureO.Time == stringsTimeToUpdate)
+                    temperatureO.TemperatureC = newTemp;
             }
 
             return Ok();
         }
 
         [HttpDelete("delete")]
-        public IActionResult Delete([FromQuery] string stringsToDelete)
+        public IActionResult Delete([FromQuery] DateTime stringsToDelete)
         {
-            for (int i = 0; i < holder.temperatureObjectValue.Count; i++)
+            foreach (TemperatureObject temperatureO in holder.temperatureObjectValue)
             {
-                if (holder.temperatureObjectValue[i].Time == stringsToDelete)
-                    holder.temperatureObjectValue.Remove(holder.temperatureObjectValue[i]);
+                if (temperatureO.Time == stringsToDelete)
+                    holder.temperatureObjectValue.Remove(temperatureO);
             }
-
             return Ok();
         }
-
-
-
-
     }
 }

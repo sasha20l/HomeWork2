@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace Asp.net_1_temperature
 {
-    public class Temperature
+    public class WeatherForecastStorage
     {
-        DateTime now = DateTime.Now;
+
         public List<TemperatureObject> temperatureObjectValue = new List<TemperatureObject>();
         public void CreateTemperature(int temperature)
         {
-            string time = now.ToString("T");
+            string time = DateTime.Now.ToString("D");
             temperatureObjectValue.Add(new TemperatureObject(temperature, time));
         }
     }
